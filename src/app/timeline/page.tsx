@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { timelineMilestones } from '@/data/memories'
 
@@ -14,7 +14,10 @@ import {
   Smile, 
   Bird, 
   Timer,
-  Calendar
+  Calendar,
+  Music,
+  Pause,
+  Play
 } from 'lucide-react'
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -40,6 +43,57 @@ const typeColors: Record<string, string> = {
 
 export default function TimelinePage() {
   const containerRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  useEffect(() => {
+    // Initialize audio
+    const audio = new Audio('Music/Chal Diye Tum Kahan OST Download Mp3 By AUR.mp3')
+    audio.loop = true
+    audioRef.current = audio
+
+    const handleInteraction = () => {
+      if (audio.paused) {
+        audio.play().then(() => {
+          setIsPlaying(true)
+        }).catch(err => {
+          console.log("Playback failed:", err)
+        })
+      }
+      // We don't remove it immediately to ensure it catches the interaction
+      // but we can remove it once it's playing
+    }
+
+    // Try to play immediately (might be blocked)
+    audio.play()
+      .then(() => setIsPlaying(true))
+      .catch(() => {
+        console.log("Autoplay blocked, waiting for interaction...")
+      })
+
+    // Listen for interactions to start audio
+    window.addEventListener('click', handleInteraction, { once: true })
+    window.addEventListener('touchstart', handleInteraction, { once: true })
+    window.addEventListener('scroll', handleInteraction, { once: true })
+
+    return () => {
+      audio.pause()
+      audio.src = ""
+      window.removeEventListener('click', handleInteraction)
+      window.removeEventListener('touchstart', handleInteraction)
+      window.removeEventListener('scroll', handleInteraction)
+    }
+  }, [])
+
+  const togglePlay = () => {
+    if (!audioRef.current) return
+    if (isPlaying) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play()
+    }
+    setIsPlaying(!isPlaying)
+  }
 
   return (
     <section className="min-h-dvh py-10 px-6" ref={containerRef}>
@@ -65,6 +119,41 @@ export default function TimelinePage() {
           ))}
         </div>
       </div>
+
+      {/* Floating Music Control */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={togglePlay}
+        className="fixed bottom-8 right-8 z-50 p-4 rounded-full glass border border-white/10 shadow-2xl hover:bg-white/10 transition-all group"
+        title={isPlaying ? "Pause Music" : "Play Music"}
+      >
+        <div className="relative flex items-center justify-center">
+          {isPlaying ? (
+            <Pause size={24} className="text-pink-400" />
+          ) : (
+            <Play size={24} className="text-white/60" />
+          )}
+          {/* Animated rings when playing */}
+          {isPlaying && (
+            <>
+              <div className="absolute inset-0 rounded-full border border-pink-400/50 animate-ping" />
+              <motion.div
+                animate={{ 
+                  y: [-2, -8, -2],
+                  rotate: [0, 10, -10, 0]
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="absolute -top-3 -right-3"
+              >
+                <Music size={14} className="text-pink-300" />
+              </motion.div>
+            </>
+          )}
+        </div>
+      </motion.button>
     </section>
   )
 }
