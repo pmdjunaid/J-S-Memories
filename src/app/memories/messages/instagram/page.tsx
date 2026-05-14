@@ -2,10 +2,124 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { conversations } from '@/data/messages'
 import Link from 'next/link'
 
-function InstaBubble({ message, index }: { message: { id: string; sender: string; text: string; time: string; reactions?: string[] }; index: number }) {
+interface InstaMessage {
+  id: string
+  sender: 'me' | 'her'
+  text: string
+  time: string
+  reactions?: string[]
+}
+
+interface InstaChapter {
+  title: string
+  date: string
+  messages: InstaMessage[]
+}
+
+const instaChapters: InstaChapter[] = [
+  {
+    title: '👋 Initial Contact',
+    date: 'Today 1:01 PM',
+    messages: [
+      { id: 'i1-1', sender: 'her', text: 'Hello', time: '1:01 PM' },
+      { id: 'i1-2', sender: 'her', text: 'Hello', time: '2:09 PM' },
+      { id: 'i1-3', sender: 'her', text: 'Fouziya here', time: '2:09 PM' },
+      { id: 'i1-4', sender: 'me', text: 'Assalam walikum bolo didi', time: '2:09 PM' },
+      { id: 'i1-5', sender: 'her', text: 'Walaikumassalam', time: '2:10 PM' },
+    ]
+  },
+  {
+    title: '🚫 Family Decision',
+    date: 'Today 2:15 PM',
+    messages: [
+      { id: 'i2-1', sender: 'her', text: 'lagaye toh Hume nakko bol dale na ba\nNai dete Hume katho bol dale bath khatam hogai\nHmre Abba khud nakko bole....', time: '2:15 PM' },
+      { id: 'i2-2', sender: 'her', text: 'And shaziya bhi nai karleti my udar shadi karko boli\nClearly no boldale hume', time: '2:16 PM' },
+      { id: 'i2-3', sender: 'her', text: 'Hmri family Wale nakko bole\nThen y u guys are insisting', time: '2:17 PM' },
+      { id: 'i2-4', sender: 'me', text: 'Didi kya kya kich bath boldale bolko kon bole tumna..', time: '2:18 PM' },
+      { id: 'i2-5', sender: 'her', text: 'Hmre Abba and ammi ku nai pasand tumare Ghar me rishta karna...so it\'s better to quit here', time: '2:20 PM' },
+      { id: 'i2-6', sender: 'me', text: 'Mai izath se rishta bheja tha..\nReject karre so nai malum tha', time: '2:21 PM' },
+      { id: 'i2-7', sender: 'her', text: 'Yes we are absolutely rejecting', time: '2:22 PM' },
+      { id: 'i2-8', sender: 'her', text: 'Hume saaf nakko bole.. tu bhi drop hoja\nAnd just move on\nU have the whole life in front of u', time: '2:25 PM' },
+    ]
+  },
+  {
+    title: '💔 Move On Advice',
+    date: 'Today 2:28 PM',
+    messages: [
+      { id: 'i3-1', sender: 'me', text: 'Mai silent tha phir hamare family members thak aa bath aaye so shaziya ku rishta aale kho hai une reject karle kho hai isa bolke hamare si rishta bhej ne lagya mai uska permission thak nai leya didi', time: '2:28 PM' },
+      { id: 'i3-2', sender: 'her', text: 'Muje mlm my vo sab ni bolri\nUne dil se nikal dali sab kuch\nUne move on hogai\nAb tu bhi move on karle', time: '2:30 PM' },
+      { id: 'i3-3', sender: 'her', text: 'Firstly hmre Abba usse rayadurg me shadi ich ni kartu bolre....\nAlready usse dusre rishte bhi are', time: '2:32 PM' },
+      { id: 'i3-4', sender: 'me', text: 'Ammi ku kya bolu mai.', time: '2:35 PM' },
+      { id: 'i3-5', sender: 'her', text: 'Tu tumare ammi ku samjhale ba\nAaj k bad ye topic repeat ich ni hona', time: '2:40 PM' },
+    ]
+  },
+  {
+    title: '⚖️ Izzath & Trust',
+    date: 'Today 2:45 PM',
+    messages: [
+      { id: 'i4-1', sender: 'her', text: 'Une bhool gai tuje ....ab tu bhi bhool ja', time: '2:45 PM' },
+      { id: 'i4-2', sender: 'me', text: 'Apko abi kuch bi nai mlm woh sirf mere aur shaziya ke bich me hai...\nMai izzat kharab hothe bolko chup ho didi', time: '2:47 PM' },
+      { id: 'i4-3', sender: 'her', text: 'Aur tumare ammi ku bhi bol ba ab ye topic kiske pas bhi discuss karnako katho', time: '2:48 PM' },
+      { id: 'i4-4', sender: 'her', text: 'Hamare Abba ka decision ich uska decision\nEk ladki ki izzath ki kya importance tuje mlm rhata', time: '2:50 PM' },
+      { id: 'i4-5', sender: 'her', text: 'Tu mere samne chota baccha...bachpan se dekhe so tuje Hume....nd u r a nice guy', time: '2:52 PM' },
+      { id: 'i4-6', sender: 'me', text: 'Didi aik last cheez puchna hai but decision kiska tha shaziya ka tha kya like rejecting ???', time: '2:55 PM' },
+      { id: 'i4-7', sender: 'her', text: 'Yes....hmre Abba badeabba sab the....my bhi thi....une khud my izzath naiso jaga ni karleti katho', time: '2:58 PM' },
+    ]
+  },
+  {
+    title: '🫂 Empathy & Pain',
+    date: 'Today 3:05 PM',
+    messages: [
+      { id: 'i5-1', sender: 'me', text: 'Izath?? Ap ko kon kya bole hamare family ke baarre me... ? Meko nai mlm ap thoda ye tafsil se boliye... Ke ap hamako itta girra ke baat q karee.', time: '3:05 PM' },
+      { id: 'i5-2', sender: 'her', text: 'My tumna gira ko bath nai karri ba....tu nai samajra bath ku', time: '3:06 PM' },
+      { id: 'i5-3', sender: 'me', text: 'Hamare pas har koi well mannered hai aur upar se hamari naik family unko bole toh meko bhoot boora dikh ra dil ko chub ri ye baat.', time: '3:08 PM' },
+      { id: 'i5-4', sender: 'her', text: 'Hmri fmly me bhi sabku mlm hogaya....\nTumari fmly ku my kuch ni bolri....\nI know ur family....', time: '3:10 PM' },
+      { id: 'i5-5', sender: 'me', text: 'Mai meri jagah samajh dari se tha upar se mere abba nai meko responsibility hai bolke upar se hamari naik family izath dar ghr ke hai bolke mai kisko bi aaj tak meri zindagi me kisko approach nai kara...', time: '3:12 PM' },
+      { id: 'i5-6', sender: 'her', text: 'Tuje bhi abi bhot responsibilities hai...focus on that...ur ammi n bhai need ur support', time: '3:15 PM' },
+      { id: 'i5-7', sender: 'her', text: 'Meri behen ki taraf galthi hito....sorry from bottom of my heart', time: '3:18 PM' },
+    ]
+  },
+  {
+    title: '🤲 Sacrifice & Faith',
+    date: 'Today 3:25 PM',
+    messages: [
+      { id: 'i6-1', sender: 'me', text: 'Didi mai tumna har bath nai bol sakta mera dream sab kuch alagna hona hai tho aap shaziya se puchlo didi', time: '3:25 PM' },
+      { id: 'i6-2', sender: 'her', text: 'Sacrifice kaiku karya ba....ab bhi kya ni hua....', time: '3:26 PM' },
+      { id: 'i6-3', sender: 'me', text: 'Kaiku bole tho usko pasand nai tha didi mai dubai jana.. Mera first dream job vahi tha so\n6 months work krne ke badh uno 2 years ka agreement sign karro bole onsite jana liken usko before me job krna pasand nai didi', time: '3:30 PM' },
+      { id: 'i6-4', sender: 'me', text: 'Usko izzat se pana samaj kho sacrifice krya so didi isa nai ke logo krte na timepass krke chod dale mere intention wrong nai tha.. Didi', time: '3:32 PM' },
+      { id: 'i6-5', sender: 'me', text: 'Alhamdulillah jaisa uska pasand tha vaisa Bengalore me job karro liken ab usko mai pasand nai..\nJazakaAllah khair didi', time: '3:35 PM' },
+      { id: 'i6-6', sender: 'her', text: 'Ab shaziya khud rishte ku inkar kari ba\nHogaya bath khatam\nUske dil ka hal Allah janta.....', time: '3:40 PM' },
+      { id: 'i6-7', sender: 'me', text: 'Allah Harqiz nai maaf krta didi.. Isa nai ke aak kho promise krna trust dila na aur sab kuch bolke Good bye that\'s it bolna itha asan nai didi', time: '3:45 PM' },
+    ]
+  },
+  {
+    title: '🕌 Final Realities',
+    date: 'Today 3:50 PM',
+    messages: [
+      { id: 'i7-1', sender: 'her', text: 'Ghar k bade kidar rishta lagaye udar karleti ab une shadi.. ...ye final decision uska....\nUski wajah se hmre maa baap ka sar ni jhukna katho une move on karli ba', time: '3:50 PM' },
+      { id: 'i7-2', sender: 'me', text: 'Nai didi hargiz maaf nai krta mai allah ke samne mai ya baat rakh toh akhirat me ye baar sawal rakh tun meri galti thi kya...', time: '3:55 PM' },
+      { id: 'i7-3', sender: 'her', text: 'Unki feelings ku hurt karko unka sar jhuka ko Hume kabhi khush ni reh sakte\nReh sakte kya khush\nTu hi bol', time: '4:00 PM' },
+      { id: 'i7-4', sender: 'me', text: 'Like tume sach sach bolo une happy se rhe sakthe kya didi\nMuje aak chota bhai samaj kho bolo une happy se rhete bole tho mai kudh move on hothu didi', time: '4:05 PM' },
+      { id: 'i7-5', sender: 'her', text: 'Ye Allah ki marzi ba....uski naseeb me Khushi likhi haito khush rhati\nNaito une bhi bhugatti', time: '4:10 PM' },
+      { id: 'i7-6', sender: 'me', text: 'Khair Allah se dua une kushi randhe..', time: '4:15 PM' },
+    ]
+  },
+  {
+    title: '📜 Closing Words',
+    date: 'Today 4:20 PM',
+    messages: [
+      { id: 'i8-1', sender: 'her', text: 'Aisa shadi se pehle milna karna bath karna sab islam me jaiz hai kya\nTume kare so galath ich\nFirst Allah k samne uski maafi manglo tume', time: '4:20 PM' },
+      { id: 'i8-2', sender: 'her', text: 'Hmre Abba ammi ki kya izath ni rhati bolko une khamosh hogai\nAur ek bath....maa baap raazi toh Allah bhi raazi', time: '4:25 PM' },
+      { id: 'i8-3', sender: 'her', text: 'Best luck for ur future\nTake care\nNaseeb ka joda kidar hi udar hota\nAllah hafiz', time: '4:30 PM' },
+      { id: 'i8-4', sender: 'me', text: 'Exactly sahi bath didi\nInshallah muje thoda time lagya samajne..', time: '4:35 PM' },
+      { id: 'i8-5', sender: 'her', text: 'Jannath ka darja rakhte so uno\nUnki bath maan lena khamoshi se\nRishte ku inkar hi', time: '4:45 PM' },
+    ]
+  }
+]
+
+function InstaBubble({ message, index }: { message: InstaMessage; index: number }) {
   const isMe = message.sender === 'me'
   return (
     <motion.div
@@ -27,10 +141,10 @@ function InstaBubble({ message, index }: { message: { id: string; sender: string
           }}
         >
           <p className="whitespace-pre-wrap break-words font-sans">
-            {message.text.split(new RegExp(`(Anniversary|promise|trust|i love you|love you)`, 'gi')).map((part, i) => (
+            {message.text.split(new RegExp(`(rishta|reject|move on|izzath|maaf|promise|trust|sacrifice|Allah|family|parents)`, 'gi')).map((part, i) => (
               <span
                 key={i}
-                className={/^(Anniversary|promise|trust|i love you|love you)$/i.test(part) ? 'text-pink-200 font-bold drop-shadow-sm' : ''}
+                className={/^(rishta|reject|move on|izzath|maaf|promise|trust|sacrifice|Allah|family|parents)$/i.test(part) ? 'text-pink-200 font-bold drop-shadow-sm' : ''}
               >
                 {part}
               </span>
@@ -63,7 +177,7 @@ const InstagramIcon = () => (
 
 export default function InstagramPage() {
   const [activeChapter, setActiveChapter] = useState(0)
-  const chapter = conversations[activeChapter]
+  const chapter = instaChapters[activeChapter]
 
   return (
     <section className="min-h-dvh py-8 px-4 flex flex-col items-center">
@@ -76,7 +190,6 @@ export default function InstagramPage() {
           ← Back to Messages
         </Link>
         <div className="flex items-center justify-center gap-3 mb-1">
-          {/* Instagram gradient icon */}
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
             style={{ background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)' }}
@@ -94,7 +207,7 @@ export default function InstagramPage() {
             Instagram
           </h1>
         </div>
-        <p className="text-white/40 text-sm font-sans">DMs full of love & late nights 💜</p>
+        <p className="text-white/40 text-sm font-sans">The full weight of the truth 💜</p>
       </motion.div>
 
       <div className="w-full max-w-md">
@@ -111,7 +224,6 @@ export default function InstagramPage() {
             maxHeight: 660,
           }}
         >
-          {/* Instagram DM Header */}
           <div
             className="px-4 py-3 flex items-center gap-3 shrink-0"
             style={{
@@ -120,19 +232,18 @@ export default function InstagramPage() {
             }}
           >
             <Link href="/memories/messages" className="text-white/60 text-lg hover:text-white transition-colors">←</Link>
-            {/* Avatar with story ring */}
             <div className="relative shrink-0">
               <div
                 className="absolute inset-0 rounded-full p-[2px]"
                 style={{ background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)', borderRadius: '50%' }}
               />
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-700 to-pink-500 flex items-center justify-center text-white text-base font-bold relative z-10 m-[2px]">
-                M
+                F
               </div>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-bold truncate font-sans">〽️annu</p>
-              <p className="text-white/40 text-xs font-sans">Active now</p>
+              <p className="text-white text-sm font-bold truncate font-sans">Fouziya</p>
+              <p className="text-white/40 text-xs font-sans">Mannu's Sister</p>
             </div>
             <div className="flex gap-3 shrink-0">
               <button className="text-white/60 text-xl">📞</button>
@@ -140,24 +251,22 @@ export default function InstagramPage() {
             </div>
           </div>
 
-          {/* Profile card */}
           <div className="flex flex-col items-center py-5 shrink-0 border-b border-white/5" style={{ background: '#000' }}>
             <div
               className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center text-white text-2xl font-black mb-2 shadow-lg"
               style={{ boxShadow: '0 0 0 3px #000, 0 0 0 5px', outline: '3px solid', outlineColor: '#833ab4' }}
             >
-              M
+              F
             </div>
-            <p className="text-white font-bold text-sm font-sans">〽️annu</p>
-            <p className="text-white/40 text-xs font-sans">Instagram • Direct Message</p>
+            <p className="text-white font-bold text-sm font-sans">Fouziya</p>
+            <p className="text-white/40 text-xs font-sans">Instagram • Mannu's Sister</p>
           </div>
 
-          {/* Chapter selector */}
           <div
             className="shrink-0 px-3 py-2 flex gap-2 overflow-x-auto border-b border-white/5"
             style={{ background: '#0a0a0a', scrollbarWidth: 'none' }}
           >
-            {conversations.map((conv, i) => (
+            {instaChapters.map((conv, i) => (
               <button
                 key={i}
                 id={`ig-chapter-${i}`}
@@ -174,9 +283,7 @@ export default function InstagramPage() {
             ))}
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto py-3" style={{ scrollbarWidth: 'none', background: '#000' }}>
-            {/* Date */}
             <div className="flex justify-center mb-3">
               <span className="px-3 py-1 rounded-full text-[10px] font-sans" style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.4)' }}>
                 {chapter.date}
@@ -197,7 +304,6 @@ export default function InstagramPage() {
             </AnimatePresence>
           </div>
 
-          {/* Input Bar */}
           <div
             className="px-4 py-3 flex items-center gap-3 shrink-0"
             style={{ background: '#000000', borderTop: '1px solid rgba(255,255,255,0.08)' }}
@@ -214,7 +320,7 @@ export default function InstagramPage() {
         </motion.div>
 
         <p className="text-center text-white/20 text-xs font-sans mt-4">
-          {conversations.length} chapters • Instagram DM memories 💜
+          {instaChapters.length} chapters • Instagram DM memories 💜
         </p>
       </div>
     </section>

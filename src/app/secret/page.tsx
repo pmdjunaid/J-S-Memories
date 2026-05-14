@@ -178,8 +178,7 @@ export default function SecretPage() {
                 My dearest 〽️annu,
               </p>
               <p className="text-white/70 font-sans text-sm leading-relaxed">
-                If you're reading this, it means you trusted me enough to enter that number. 
-                And that already means everything.
+                If you're reading this, it means you trusted me 🥺.
               </p>
               <br />
               <p className="text-white/70 font-sans text-sm leading-relaxed">
@@ -195,7 +194,7 @@ export default function SecretPage() {
               <br />
               <p className="text-white/60 font-sans text-sm leading-relaxed italic">
                 "Mere mama ka hath kabhi bhi nai chod tha until I die" — that's how I feel about you. 
-                My 〽️. My mendak. My first nd last.
+                My 〽️annu.
               </p>
               <div className="mt-6 text-right">
                 <p className="font-heading italic text-rose-gold text-xl">Yours always, Junaid 💫</p>
