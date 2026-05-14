@@ -2,10 +2,92 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { conversations } from '@/data/messages'
 import Link from 'next/link'
 
-function SnapBubble({ message, index }: { message: { id: string; sender: string; text: string; time: string; reactions?: string[] }; index: number }) {
+interface SnapMessage {
+  id: string
+  sender: 'me' | 'her'
+  text: string
+  time?: string
+  reactions?: string[]
+}
+
+interface SnapChapter {
+  title: string
+  date: string
+  messages: SnapMessage[]
+}
+
+const snapchatChapters: SnapChapter[] = [
+  {
+    title: '🌙 Halal Path',
+    date: '11:05 PM',
+    messages: [
+      { id: 'sc1-1', sender: 'her', text: 'Phir q bat karra une agar une committed hai tu hona hai tu khud uneich aata rishta leko\nKato bole\nKuch feel nakho hoo\nPlzzzzz' },
+      { id: 'sc1-2', sender: 'me', text: 'Feel kyu hona 🤙\nDidi correct bole so na', time: '11:05 PM' },
+      { id: 'sc1-3', sender: 'her', text: 'Hann ba but', time: '11:06 PM' },
+      { id: 'sc1-4', sender: 'me', text: 'Mai ristha bhej thu ghar me Tu bolna jaan', time: '11:06 PM' },
+      { id: 'sc1-5', sender: 'her', text: 'Zarur ba', time: '11:06 PM' },
+      { id: 'sc1-6', sender: 'her', text: 'My bolrun\nPraposal tere si aana so my ladki mere Haan ya na poochte uttach', time: '11:07 PM' },
+      { id: 'sc1-7', sender: 'me', text: 'Phir kyu bath karra katho aak bolna tha 🤙\nTu', time: '11:08 PM' },
+      { id: 'sc1-8', sender: 'her', text: 'Kya bolun mujhe hona my bat karrun bole\nUne bht fikar karre ba\nKal si b\nKette msgs rakhre', time: '11:08 PM' },
+      { id: 'sc1-9', sender: 'me', text: 'Une aaj thak whatsApp me message nai kar ya mai karna kho bole jab se call thak nai karya.. Sirf tere izzat muje hona tha so 🤙 annu 🥺\nIsa nai ke muje msg karna call karna aa sab nko muje', time: '11:09 PM' },
+      { id: 'sc1-10', sender: 'her', text: 'Hann ba sab boltun utta maukha nai de mujhe une bat ich nai kare\n🥺', time: '11:10 PM' },
+      { id: 'sc1-11', sender: 'me', text: 'Jo bhi ho halal hona sirf tere se', time: '11:10 PM' },
+      { id: 'sc1-12', sender: 'her', text: 'Une b och bolre so\nNamaz quran ka kya b faida nai jab tak nikah nai hota o haram ich bolre', time: '11:11 PM' },
+      { id: 'sc1-13', sender: 'me', text: 'Ok Fine 🤙 annu\nMai tere har bath ku maan leya aa bath ku bhi maan le thu i know aa bhot muskil liken didi ke happiness aur tuje next time aa bath nai aane detha muje nko bath kar jab thak ke mai tuje proposal lekho nai aata kuch emergency hai tho message kar only one msg aur kuch bhi nko salam khairiyat kuch nko same like strenger jaisa msg kar aur aak didi bole na haram bolko i accept didi word\'s Didi ku bol 🤙 annu plz I\'m really sorry didi..\nMere fikar bilkul nko kar 🤙 annu.. Isa bolko muje tere fikar hore 😭', time: '11:12 PM' },
+      { id: 'sc1-14', sender: 'her', text: 'Nakho kar mere fikar\nNooo baa\nNoo mujhe tere siwa koun b nakho', time: '11:19 PM', reactions: ['🥺'] },
+      { id: 'sc1-15', sender: 'me', text: 'Inshallah 🤙', time: '11:23 PM' },
+      { id: 'sc1-16', sender: 'her', text: 'Tu mera nakho sooch I\'m promissing you I\'m committed on u my tujhe nai chodh te....tu b mujhe nakho chod\nUsay bcoz she already suffered alottt\n🥺', time: '11:25 PM' },
+    ],
+  },
+  {
+    title: '✨ Dreams & Happiness',
+    date: '11:27 PM',
+    messages: [
+      { id: 'sc1.5-1', sender: 'her', text: 'Junaid mujhe tere saath mere life sooche tho ich mere chehra par happiness rahte soch ek bar tere saath hai tho mere happiness ka limit ich nai mujhe mlm mai tere saath hai tho ghar si b zyada khush rahtun', time: '11:27 PM' },
+      { id: 'sc1.5-2', sender: 'me', text: 'Mannu life long tuje happiness se raktu Allah mere life me kitte bhi salary ho usse me barkat ata farmana..', time: '11:27 PM' },
+      { id: 'sc1.5-3', sender: 'me', text: 'Ameen summa ameen', time: '11:27 PM' },
+      { id: 'sc1.5-4', sender: 'me', text: 'Mai sochliya\nOutside country jana bole tho tere sath sab set krkho nai tho nko muje oo offer nko I don\'t want to lose you', time: '11:27 PM' },
+      { id: 'sc1.5-5', sender: 'her', text: 'Tu salry ka nakho sooch mujhe kya b nakho mujhe khawish b nai hai sab ladkiya jaise Maih b tera saath detun maih b job kartun hame banglore shift hojayege', time: '11:28 PM' },
+    ],
+  },
+  {
+    title: '⏳ The 1.5 Year Test',
+    date: '11:38 PM',
+    messages: [
+      { id: 'sc2-1', sender: 'me', text: 'Mai kab ristha puchna krko' },
+      { id: 'sc2-2', sender: 'her', text: 'After 1.5 year\nJab tak aisach rahna my tujhe bat kare ni jaisa allahhh...', time: '11:38 PM' },
+      { id: 'sc2-3', sender: 'me', text: '547.5 days', time: '11:38 PM' },
+      { id: 'sc2-4', sender: 'her', text: 'Kya ba yeh test hamare upper\nHoo', time: '11:38 PM' },
+      { id: 'sc2-5', sender: 'her', text: 'To sayy s and fight fr u in front of my family', time: '11:38 PM' },
+      { id: 'sc2-6', sender: 'me', text: 'Correct time ay tho muje ask msg kr plz', time: '11:38 PM' },
+      { id: 'sc2-7', sender: 'her', text: 'Ok Insha Allah', time: '11:39 PM' },
+      { id: 'sc2-8', sender: 'her', text: 'Tu tension nakho kar ba\nPromise kar', time: '11:39 PM' },
+      { id: 'sc2-9', sender: 'me', text: 'Promise krna kya', time: '11:40 PM' },
+      { id: 'sc2-10', sender: 'her', text: 'Hann ba\nMy bolrun na befikar hoo\nMy tujhe ich shaadi karle ne ka\n💝', time: '11:40 PM' },
+    ],
+  },
+  {
+    title: '🔥 Promise & Streak',
+    date: '11:45 PM',
+    messages: [
+      { id: 'sc3-1', sender: 'me', text: 'Emotional blackmail karre tho tuje kya tension lenakho 🤙' },
+      { id: 'sc3-2', sender: 'her', text: 'Promise me fr not taking a little bit tension or changing ur mood' },
+      { id: 'sc3-3', sender: 'me', text: 'Future me hame sath rhans so' },
+      { id: 'sc3-4', sender: 'her', text: 'Haan' },
+      { id: 'sc3-5', sender: 'me', text: 'Ok promise 🤙 annu', time: '11:45 PM' },
+      { id: 'sc3-6', sender: 'her', text: 'Saccha wala\nPakka wala\nFamily si nrml rahna\n(YOU AND SHAZIYA STARTED A STREAK 🔥)\nJaisa ab hai vaisa', time: '11:45 PM' },
+      { id: 'sc3-7', sender: 'me', text: 'Ok', time: '11:45 PM' },
+      { id: 'sc3-8', sender: 'me', text: 'Jiju ku malum hua kya', time: '11:48 PM' },
+      { id: 'sc3-9', sender: 'her', text: 'Nai mlm\nAnything else', time: '11:48 PM' },
+      { id: 'sc3-10', sender: 'me', text: 'I think Good bye aur good night bolne ka time aaya', time: '11:48 PM' },
+      { id: 'sc3-11', sender: 'her', text: 'Noo good byee only byeeee\nMy kya mar jarun kya good byee bolne', time: '11:48 PM', reactions: ['😝'] },
+    ],
+  },
+]
+
+function SnapBubble({ message, index }: { message: SnapMessage; index: number }) {
   const isMe = message.sender === 'me'
   return (
     <motion.div
@@ -15,26 +97,23 @@ function SnapBubble({ message, index }: { message: { id: string; sender: string;
       className={`flex ${isMe ? 'justify-end' : 'justify-start'} mb-2 px-4`}
     >
       <div className="relative max-w-[75%]">
-        {/* Sender label */}
         {!isMe && (
           <p className="text-[10px] text-[#FFFC00]/60 mb-0.5 ml-1 font-sans font-semibold">〽️annu</p>
         )}
         <div
           className="px-4 py-2.5 text-sm leading-relaxed shadow-lg"
           style={{
-            background: isMe
-              ? '#FFFC00'
-              : 'rgba(255,252,0,0.12)',
+            background: isMe ? '#FFFC00' : 'rgba(255,252,0,0.12)',
             border: isMe ? 'none' : '1.5px solid rgba(255,252,0,0.3)',
             borderRadius: isMe ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
             color: isMe ? '#1a1a00' : '#ffffff',
           }}
         >
           <p className="whitespace-pre-wrap break-words font-sans font-medium">
-            {message.text.split(new RegExp(`(Anniversary|promise|trust|i love you|love you)`, 'gi')).map((part, i) => (
+            {message.text.split(new RegExp(`(Anniversary|promise|trust|i love you|love you|halal|nikah|marriage|happiness|banglore|Ameen)`, 'gi')).map((part, i) => (
               <span
                 key={i}
-                className={/^(Anniversary|promise|trust|i love you|love you)$/i.test(part) ? (isMe ? 'underline font-bold' : 'text-[#FFFC00] font-bold') : ''}
+                className={/^(Anniversary|promise|trust|i love you|love you|halal|nikah|marriage|happiness|banglore|Ameen)$/i.test(part) ? (isMe ? 'underline font-bold' : 'text-[#FFFC00] font-bold') : ''}
               >
                 {part}
               </span>
@@ -42,15 +121,19 @@ function SnapBubble({ message, index }: { message: { id: string; sender: string;
           </p>
         </div>
         <div className={`flex items-center gap-1 mt-0.5 px-1 ${isMe ? 'justify-end' : 'justify-start'}`}>
-          <span className="text-[9px] text-white/30 font-sans">{message.time}</span>
+          <span className="text-[9px] text-white/30 font-sans">{message.time || ''}</span>
           {isMe && <span className="text-[10px] text-[#FFFC00]/50">✓✓</span>}
         </div>
         {message.reactions && message.reactions.length > 0 && (
-          <div className={`flex gap-0.5 mt-0.5 ${isMe ? 'justify-end' : 'justify-start'}`}>
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            className={`absolute -bottom-2 ${isMe ? 'right-2' : 'left-2'} flex gap-0.5`}
+          >
             {message.reactions.map((r, i) => (
-              <span key={i} className="text-xs bg-black/30 rounded-full px-1.5 py-0.5 border border-[#FFFC00]/20">{r}</span>
+              <span key={i} className="text-xs bg-black/40 rounded-full px-1.5 py-0.5 border border-[#FFFC00]/20 shadow-lg">{r}</span>
             ))}
-          </div>
+          </motion.div>
         )}
       </div>
     </motion.div>
@@ -59,7 +142,7 @@ function SnapBubble({ message, index }: { message: { id: string; sender: string;
 
 export default function SnapchatPage() {
   const [activeChapter, setActiveChapter] = useState(0)
-  const chapter = conversations[activeChapter]
+  const chapter = snapchatChapters[activeChapter]
 
   return (
     <section className="min-h-dvh py-8 px-4 flex flex-col items-center">
@@ -72,7 +155,6 @@ export default function SnapchatPage() {
           ← Back to Messages
         </Link>
         <div className="flex items-center justify-center gap-3 mb-1">
-          {/* Snapchat Ghost */}
           <div className="w-10 h-10 rounded-xl bg-[#FFFC00] flex items-center justify-center shadow-lg shadow-yellow-500/30">
             <svg viewBox="0 0 32 32" fill="black" className="w-6 h-6">
               <path d="M16.07 2c-.37 0-3.66.1-5.32 3.38-.5.99-.44 2.67-.38 4.06v.04c-.38.22-1.13.17-1.64-.06-.27-.13-.57-.05-.72.18-.16.24-.1.56.13.76.04.04 1 .9 2.28.9.08 0 .17 0 .25-.01.28 1.08.87 2.7 2.2 4.1-1.12.5-3.29 1.18-6.5 1.18-.28 0-.5.2-.5.47 0 1.38 3.34 2.21 5.6 2.58.08.48.19 1.56-.15 2.12-.12.19-.06.45.14.57.78.47 3.04.6 4.15.6.32 0 .52-.01.52-.01s.2.01.52.01c1.11 0 3.37-.13 4.15-.6.2-.12.26-.38.14-.57-.34-.56-.23-1.64-.15-2.12 2.26-.37 5.6-1.2 5.6-2.58 0-.27-.22-.47-.5-.47-3.22 0-5.39-.68-6.5-1.18 1.33-1.4 1.92-3.02 2.2-4.1.08.01.17.01.25.01 1.28 0 2.24-.86 2.28-.9.23-.2.29-.52.13-.76-.15-.23-.45-.31-.72-.18-.51.23-1.27.28-1.64.06v-.04c.06-1.39.12-3.07-.38-4.06C19.73 2.1 16.44 2 16.07 2z"/>
@@ -102,12 +184,11 @@ export default function SnapchatPage() {
             maxHeight: 660,
           }}
         >
-          {/* Snapchat Header */}
           <div
             className="px-4 py-3 flex items-center gap-3 shrink-0"
             style={{ background: '#111111', borderBottom: '1px solid rgba(255,252,0,0.1)' }}
           >
-            <button className="text-[#FFFC00]/70 text-lg">←</button>
+            <Link href="/memories/messages" className="text-[#FFFC00]/70 text-lg">←</Link>
             <div className="w-10 h-10 rounded-full bg-[#FFFC00] flex items-center justify-center text-black text-base font-black shrink-0 shadow-lg">
               M
             </div>
@@ -124,15 +205,13 @@ export default function SnapchatPage() {
             </div>
           </div>
 
-          {/* Chapter selector */}
           <div
             className="shrink-0 px-3 py-2 flex gap-2 overflow-x-auto border-b border-[#FFFC00]/10"
             style={{ background: '#0a0a0a', scrollbarWidth: 'none' }}
           >
-            {conversations.map((conv, i) => (
+            {snapchatChapters.map((conv, i) => (
               <button
                 key={i}
-                id={`sc-chapter-${i}`}
                 onClick={() => setActiveChapter(i)}
                 className="whitespace-nowrap px-3 py-1.5 rounded-xl text-[10px] font-sans font-semibold transition-all duration-200 shrink-0"
                 style={{
@@ -146,14 +225,12 @@ export default function SnapchatPage() {
             ))}
           </div>
 
-          {/* Date badge */}
           <div className="flex justify-center pt-4 pb-2 shrink-0">
             <span className="px-3 py-1 rounded-full text-[10px] font-sans font-semibold" style={{ background: 'rgba(255,252,0,0.1)', color: 'rgba(255,252,0,0.6)', border: '1px solid rgba(255,252,0,0.2)' }}>
               {chapter.date}
             </span>
           </div>
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto pb-4" style={{ scrollbarWidth: 'none' }}>
             <AnimatePresence mode="wait">
               <motion.div
@@ -170,7 +247,6 @@ export default function SnapchatPage() {
             </AnimatePresence>
           </div>
 
-          {/* Input area */}
           <div
             className="px-4 py-3 flex items-center gap-3 shrink-0"
             style={{ background: '#111111', borderTop: '1px solid rgba(255,252,0,0.1)' }}
@@ -186,7 +262,7 @@ export default function SnapchatPage() {
         </motion.div>
 
         <p className="text-center text-white/20 text-xs font-sans mt-4">
-          {conversations.length} chapters • Snap memories 👻
+          {snapchatChapters.length} chapters • Snap memories 👻
         </p>
       </div>
     </section>

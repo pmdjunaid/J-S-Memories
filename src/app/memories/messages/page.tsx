@@ -81,6 +81,12 @@ export default function MessagesPage() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-10"
       >
+        <Link
+          href="/memories"
+          className="inline-flex items-center gap-1.5 text-white/30 hover:text-white/60 text-xs font-sans mb-4 transition-colors"
+        >
+          ← Back to Memories
+        </Link>
         <h1 className="font-heading text-4xl sm:text-5xl gradient-text mb-2">Our Messages</h1>
         <p className="text-white/40 text-sm font-sans">Every word, saved forever 💬</p>
       </motion.div>

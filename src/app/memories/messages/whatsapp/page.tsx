@@ -98,7 +98,7 @@ export default function WhatsAppPage() {
         >
           {/* Header */}
           <div className="px-4 py-3 flex items-center gap-3 shrink-0 relative z-10" style={{ background: '#1f2c34' }}>
-            <button className="text-white/50 text-xl mr-1">←</button>
+            <Link href="/memories/messages" className="text-white/50 text-xl mr-1 hover:text-white transition-colors">←</Link>
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-lavender to-rose-gold flex items-center justify-center text-lg shrink-0">
               〽️
             </div>

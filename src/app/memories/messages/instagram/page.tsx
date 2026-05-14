@@ -119,7 +119,7 @@ export default function InstagramPage() {
               borderBottom: '1px solid rgba(255,255,255,0.08)',
             }}
           >
-            <button className="text-white/60 text-lg">←</button>
+            <Link href="/memories/messages" className="text-white/60 text-lg hover:text-white transition-colors">←</Link>
             {/* Avatar with story ring */}
             <div className="relative shrink-0">
               <div
