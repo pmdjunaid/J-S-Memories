@@ -52,36 +52,9 @@ export default function TimelinePage() {
     audio.loop = true
     audioRef.current = audio
 
-    const handleInteraction = () => {
-      if (audio.paused) {
-        audio.play().then(() => {
-          setIsPlaying(true)
-        }).catch(err => {
-          console.log("Playback failed:", err)
-        })
-      }
-      // We don't remove it immediately to ensure it catches the interaction
-      // but we can remove it once it's playing
-    }
-
-    // Try to play immediately (might be blocked)
-    audio.play()
-      .then(() => setIsPlaying(true))
-      .catch(() => {
-        console.log("Autoplay blocked, waiting for interaction...")
-      })
-
-    // Listen for interactions to start audio
-    window.addEventListener('click', handleInteraction, { once: true })
-    window.addEventListener('touchstart', handleInteraction, { once: true })
-    window.addEventListener('scroll', handleInteraction, { once: true })
-
     return () => {
       audio.pause()
       audio.src = ""
-      window.removeEventListener('click', handleInteraction)
-      window.removeEventListener('touchstart', handleInteraction)
-      window.removeEventListener('scroll', handleInteraction)
     }
   }, [])
 
@@ -127,7 +100,7 @@ export default function TimelinePage() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         onClick={togglePlay}
-        className="fixed bottom-8 right-8 z-50 p-4 rounded-full glass border border-white/10 shadow-2xl hover:bg-white/10 transition-all group"
+        className="fixed bottom-24 right-8 md:bottom-8 z-[60] p-4 rounded-full glass border border-white/10 shadow-2xl hover:bg-white/10 transition-all group"
         title={isPlaying ? "Pause Music" : "Play Music"}
       >
         <div className="relative flex items-center justify-center">

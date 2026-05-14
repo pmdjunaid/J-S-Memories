@@ -1,26 +1,62 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Camera, ChevronLeft, ChevronRight, X, Sparkles, Heart, Moon, Book, Timer, Smile } from 'lucide-react'
+import { 
+  Camera, 
+  ChevronLeft, 
+  ChevronRight, 
+  X, 
+  Sparkles, 
+  Heart, 
+  Moon, 
+  Book, 
+  Timer, 
+  Smile,
+  MessageCircle,
+  Mail,
+  Users,
+  Gem
+} from 'lucide-react'
 import { memories } from '@/data/memories'
 
-// Placeholder gallery items (add real photos to /public/images/gallery/)
-const galleryItems = [
-  { id: 'g1', src: null, title: 'First Hello', date: 'Aug 2023', location: 'Chittoor', icon: <Smile size={48} />, mood: '😊', rotation: -2 },
-  { id: 'g1.5', src: '/imgs/gift.jpg', title: 'First Gift', date: 'Aug 2023', location: 'Chittoor', icon: <Heart size={48} />, mood: '🎁', rotation: 3 },
-  { id: 'g2', src: null, title: 'Friendship Day', date: 'Aug 2023', location: 'Chittoor', icon: <Heart size={48} />, mood: '🥰', rotation: 1 },
-  { id: 'g3', src: null, title: 'Late Night Chats', date: 'Sep 2023', location: 'Home', icon: <Moon size={48} />, mood: '🌙', rotation: -1 },
-  { id: 'g4', src: null, title: 'Study Break', date: 'Oct 2023', location: 'Tirupati', icon: <Book size={48} />, mood: '📚', rotation: 2 },
-  { id: 'g5', src: null, title: 'Something Changed', date: 'May 2024', location: '♾️', icon: <Sparkles size={48} />, mood: '💫', rotation: -3 },
-  { id: 'g6', src: null, title: '"Little Bit Love"', date: 'Jun 2024', location: 'Our Universe', icon: <Heart size={48} />, mood: '❤️', rotation: 1.5 },
-  { id: 'g7', src: null, title: 'First nd Last', date: 'Jan 2025', location: '∞', icon: <Heart size={48} />, mood: '💖', rotation: -1 },
-  { id: 'g8', src: null, title: 'Always Waiting', date: 'Feb 2026', location: 'Forever', icon: <Timer size={48} />, mood: '⏳', rotation: 2 },
-]
+const typeIcons: Record<string, React.ReactNode> = {
+  'first-meet': <Smile size={48} />,
+  'message': <MessageCircle size={48} />,
+  'photo': <Camera size={48} />,
+  'letter': <Mail size={48} />,
+  'milestone': <Sparkles size={48} />,
+}
 
-const months = Array.from(new Set(galleryItems.map(g => g.date.split(' ')[1] + ' ' + g.date.split(' ')[0])))
+const moodIcons: Record<string, React.ReactNode> = {
+  '🥰': <Heart size={48} />,
+  '🎁': <Gem size={48} />,
+  '😊': <Smile size={48} />,
+  '🫂': <Users size={48} />,
+  '💕': <Heart size={48} />,
+  '😍': <Heart size={48} />,
+  '🤝': <Users size={48} />,
+  '✨': <Sparkles size={48} />,
+  '💖': <Heart size={48} />,
+}
 
 export default function GalleryPage() {
+  const galleryItems = useMemo(() => {
+    return memories.map((m, i) => ({
+      id: m.id,
+      src: m.media?.[0] || null,
+      title: m.title,
+      date: m.month || m.date,
+      location: m.location || '♾️',
+      icon: moodIcons[m.mood || ''] || typeIcons[m.type] || <Sparkles size={48} />,
+      mood: m.mood || '✨',
+      rotation: ((i % 5) - 2) * 2
+    }))
+  }, [])
+
+  const months = useMemo(() => {
+    return Array.from(new Set(galleryItems.map(g => g.date)))
+  }, [galleryItems])
   const [lightbox, setLightbox] = useState<typeof galleryItems[0] | null>(null)
   const [lightboxIdx, setLightboxIdx] = useState(0)
 
