@@ -48,7 +48,7 @@ export default function TimelinePage() {
 
   useEffect(() => {
     // Initialize audio
-    const audio = new Audio('Music/Chal Diye Tum Kahan OST Download Mp3 By AUR.mp3')
+    const audio = new Audio('Music/Chal Diye Tum Kahan (PenduJatt.Com.Se).mp3')
     audio.loop = true
     audioRef.current = audio
 
